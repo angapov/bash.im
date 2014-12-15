@@ -1,6 +1,7 @@
 #!/bin/bash
-echo "DROP TABLE IF EXISTS quotes;" | mysql -uroot -pdfybkmyfzufptkm2013 bash;
-echo "CREATE TABLE quotes (id INT(8), date DATE, rating INT(8), text MEDIUMTEXT);" | mysql -uroot -pdfybkmyfzufptkm2013 bash;
+read -s -p "Enter MySQL root password: " MYSQLPASSWORD
+echo "DROP TABLE IF EXISTS quotes;" | mysql -uroot -p${MYSQLPASSWORD} bash;
+echo "CREATE TABLE quotes (id INT(8), date DATE, rating INT(8), text MEDIUMTEXT);" | mysql -uroot -p${MYSQLPASSWORD} bash;
 for PAGE_NUM in `seq 1 988`; do
   elinks -dump -dump-width 150 http://bash.im/index/$PAGE_NUM > BASH
   sed = BASH | sed -nr -e 'N;s/\n//' -e 's%\[[0-9]{1,3}\]\+ ([0-9]{1,6}) \[[0-9]{1,3}\].*([0-9]{4}\-[0-9]{2}\-[0-9]{2}).*#([0-9]{1,6})%\1 \2 \3%p' > INDEX 
@@ -14,6 +15,6 @@ for PAGE_NUM in `seq 1 988`; do
     if [ $i -ne $LINES ]; then NEXT_LINE=`sed -n "${j}p" INDEX | cut -d' ' -f1`; else NEXT_LINE=$LAST_LINE; fi
     ((NEXT_LINE--))
     QUOTE_TEXT="$(sed -n "${CURR_LINE},${NEXT_LINE}p" BASH | sed 's%\\%\\\\%g' | sed "s%'%\\\\\'%g")"
-    echo "INSERT INTO quotes (id,date,rating,text) VALUES ('$QUOTE_NUM', '$QUOTE_DATE', '$QUOTE_RATING', '$QUOTE_TEXT');" | mysql -uroot -pdfybkmyfzufptkm2013 bash;
+    echo "INSERT INTO quotes (id,date,rating,text) VALUES ('$QUOTE_NUM', '$QUOTE_DATE', '$QUOTE_RATING', '$QUOTE_TEXT');" | mysql -uroot -p${MYSQLPASSWORD} bash;
   done
 done
